@@ -15,6 +15,8 @@ import cv2
 
 kSearchTime = 5
 
+# 笔记本win dpi缩放
+windll.shcore.SetProcessDpiAwareness(1)
 
 def wait(ts):
     time.sleep(ts)
