@@ -11,7 +11,7 @@
 
 #### 安装
 1. 安装python 3.7
-2. Powershell/Cmd中输入 pip install pywin32 numpy cv2
+2. Powershell/Cmd中输入 pip install pywin32 numpy opencv-python
 3. 安装MuMu模拟器, 修改分辨率为1280x720, dpi 300 (若不采用此分辨率需自行更改pic中的模板图)
 
 #### 脚本
