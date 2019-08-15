@@ -81,6 +81,8 @@ def send_messages_to_child_window(parent_hWnd, wnd_class, wnd_text, msgs, wParam
 
 # 向指定窗口发送按键
 def send_key_to_window(hWnd, key):
+    if key is None:
+        return
     win32gui.SendMessage(hWnd, win32con.WM_KEYDOWN, key, 0)
     wait(0.01)
     win32gui.SendMessage(hWnd, win32con.WM_KEYUP, key, 0)
@@ -94,6 +96,17 @@ def send_lbutton_clk_to_window(hWnd, x, y):
     wait(0.01)
     win32gui.SendMessage(hWnd, win32con.WM_LBUTTONUP, 0, (y << 16) | x)
 
+
+# 鼠标中键滑动
+def send_mouse_wheel_to_window(hWnd, x, y, z, n):
+    x = int(x)
+    y = int(y)
+    z = int(z)
+    if z < 0:
+        z = 65536 + z
+    for i in range(n):
+        win32gui.SendMessage(hWnd, win32con.WM_MOUSEWHEEL, z << 16, (y << 16) | x)
+        wait(0.01)
 
 def in_pid_list(hWnd, *args):
     pid_list = args[0]
@@ -163,4 +176,5 @@ if __name__ == "__main__":
     handle = find_window_handle('MuMu', None, None)
     handle = find_first_child_window(handle)
     cv2.imshow('img', screenshot(handle))
+    cv2.imwrite('img.png', screenshot(handle))
     cv2.waitKey(0)
