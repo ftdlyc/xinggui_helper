@@ -14,7 +14,8 @@ from game.base import *
 k_button_path = {
     'skip': './pic/button_skip.png',
     'ok': './pic/button_ok.png',
-    'battle_start': './pic/button_battle_start.png'
+    'battle_start': './pic/button_battle_start.png',
+    'reward_check': './pic/button_reward_check.png'
 }
 
 k_button_img = {}
@@ -45,6 +46,11 @@ def press_button_ok(hWnd):
 # 点击挑战
 def press_button_battle_start(hWnd):
     return press_button_aux(hWnd, 'battle_start')
+
+
+# 点击确认
+def press_button_reward_check(hWnd):
+    return press_button_aux(hWnd, 'reward_check')
 
 
 if __name__ == "__main__":

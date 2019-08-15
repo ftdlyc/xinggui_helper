@@ -111,33 +111,39 @@ def screenshot(hWnd):
     if b_iconic:
         win32gui.ShowWindow(root_hWnd, win32con.SW_RESTORE)
 
-        left, top, right, bottom = win32gui.GetWindowRect(root_hWnd)
-        width = right - left
-        height = bottom - top
-        
-        win32gui.SetWindowPos(root_hWnd, win32con.HWND_BOTTOM, left, top, width, height, 0)
+    root_left, root_top, root_right, root_bottom = win32gui.GetWindowRect(root_hWnd)
+    root_width = root_right - root_left
+    root_height = root_bottom - root_top
 
     left, top, right, bottom = win32gui.GetWindowRect(hWnd)
     width = right - left
     height = bottom - top
 
-    hWndDC = win32gui.GetWindowDC(hWnd)
+    desktop_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
+    desktop_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
+
+    # 将主窗口移到屏幕内
+    if root_left < 0 or root_top < 0 or root_right > desktop_width or root_bottom > desktop_height:
+        win32gui.SetWindowPos(root_hWnd, win32con.HWND_BOTTOM, 0, 0, root_width, root_height, 0)
+
+    # 截图
+    hWndDC = win32gui.GetWindowDC(root_hWnd)
     mfcDC = win32ui.CreateDCFromHandle(hWndDC)
     saveDC = mfcDC.CreateCompatibleDC()
-
     bitmap = win32ui.CreateBitmap()
-    bitmap.CreateCompatibleBitmap(mfcDC, width, height)
-
+    bitmap.CreateCompatibleBitmap(mfcDC, root_width, root_height)
     saveDC.SelectObject(bitmap)
-    saveDC.BitBlt((0, 0), (width, height), mfcDC, (0, 0), win32con.SRCCOPY)
-    #windll.user32.PrintWindow(hWnd, saveDC.GetSafeHdc(), 0)
+    #saveDC.BitBlt((0, 0), (root_width, root_height), mfcDC, (0, 0), win32con.SRCCOPY)
+    windll.user32.PrintWindow(root_hWnd, saveDC.GetSafeHdc(), 0)
+
+    win32gui.SetWindowPos(root_hWnd, win32con.HWND_BOTTOM, root_left, root_top, root_width, root_height, 0)
 
     if b_iconic:
         win32gui.ShowWindow(root_hWnd, win32con.SW_MINIMIZE)
 
     raw_data = bitmap.GetBitmapBits(True)
     img = np.frombuffer(raw_data, dtype='uint8')
-    img.shape = (height, width, 4)
+    img.shape = (root_height, root_width, 4)
     img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
     win32gui.DeleteObject(bitmap.GetHandle())
@@ -145,11 +151,16 @@ def screenshot(hWnd):
     mfcDC.DeleteDC()
     win32gui.ReleaseDC(hWnd, hWndDC)
 
+    # 截取子窗口图像
+    sub_left = left - root_left
+    sub_top = top - root_top
+    img = img[sub_top:sub_top + height, sub_left:sub_left + width]
+
     return img
 
 
 if __name__ == "__main__":
     handle = find_window_handle('MuMu', None, None)
     handle = find_first_child_window(handle)
-    cv2.imshow("img", screenshot(handle))
+    cv2.imshow('img', screenshot(handle))
     cv2.waitKey(0)

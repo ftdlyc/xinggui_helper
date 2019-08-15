@@ -4,7 +4,7 @@ import game
 import win32_helper
 
 op_delay = 3
-battle_cost_times = 160
+battle_cost_times = 160 # 战斗时间, 单位秒
 battle_end_delay = 6
 
 hWnd = win32_helper.find_window_handle('MuMu', None, None)
@@ -30,7 +30,7 @@ while True:
         win32_helper.wait(op_delay)
         win32_helper.wait(op_delay)
 
-    # 点击确定
+    # 点击确认
     win32_helper.wait(battle_end_delay)
-    while not game.press_button_ok(hWnd):
+    while not game.press_button_reward_check(hWnd):
         win32_helper.wait(op_delay)

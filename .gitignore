@@ -107,3 +107,6 @@ fabric.properties
 # python
 __pychache__/
 *.pyc
+
+# vs code
+.vscode/*
