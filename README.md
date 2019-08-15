@@ -5,6 +5,8 @@
 #### 环境
 - python 3.6 or 更高
 - pywin32 (pip install pywin32)
+- numpy (pip install numpy)
+- cv2 (pip install opencv-python)
 - MuMu模拟器
 
 #### 脚本
