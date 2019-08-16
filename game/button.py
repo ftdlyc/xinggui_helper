@@ -4,11 +4,12 @@
 import sys
 sys.path.append('./')
 
-import win32gui
-import dip
-import win32_helper
 import cv2
 import numpy as np
+import win32gui
+
+import dip
+import win32_helper
 
 
 k_button_path = {
@@ -17,7 +18,8 @@ k_button_path = {
     'cancel': './pic/button_cancel.png',
     'battle_start': './pic/button_battle_start.png',
     'reward_check': './pic/button_reward_check.png',
-    'use': './pic/button_use.png'
+    'use': './pic/button_use.png',
+    'mainui_sign': './pic/mainui_sign.png'
 }
 
 k_button_img = {}
@@ -54,11 +56,15 @@ def has_button_aux(hWnd, name, thr=0.75):
     return has_button(hWnd, template, thr)[0]
 
 
-def press_button_aux(hWnd, name, thr=0.75):
+def press_button_aux(hWnd, name, stride, thr=0.75, op_delay=2):
     if name not in k_button_img:
         k_button_img[name] = cv2.imread(k_button_path[name])
     template = k_button_img[name]
-    ret, val = press_button(hWnd, template, thr)
+    while 1:
+        ret, val = press_button(hWnd, template, thr)
+        win32_helper.wait(op_delay)
+        if not stride or not has_button(hWnd, template, thr)[0]:
+            break
     if ret:
         print('press button {0}, val = {1}'.format(name, val))
     else:
@@ -67,8 +73,8 @@ def press_button_aux(hWnd, name, thr=0.75):
 
 
 # 点击略过
-def press_button_skip(hWnd):
-    return press_button_aux(hWnd, 'skip')
+def press_button_skip(hWnd, stride=True):
+    return press_button_aux(hWnd, 'skip', stride)
 
 
 def has_button_skip(hWnd):
@@ -76,8 +82,8 @@ def has_button_skip(hWnd):
 
 
 # 点击确定
-def press_button_ok(hWnd):
-    return press_button_aux(hWnd, 'ok')
+def press_button_ok(hWnd, stride=True):
+    return press_button_aux(hWnd, 'ok', stride)
 
 
 def has_button_ok(hWnd):
@@ -85,8 +91,8 @@ def has_button_ok(hWnd):
 
 
 # 点击取消
-def press_button_cancel(hWnd):
-    return press_button_aux(hWnd, 'cancel')
+def press_button_cancel(hWnd, stride=True):
+    return press_button_aux(hWnd, 'cancel', stride)
 
 
 def has_button_cancel(hWnd):
@@ -94,8 +100,8 @@ def has_button_cancel(hWnd):
 
 
 # 点击挑战
-def press_button_battle_start(hWnd):
-    return press_button_aux(hWnd, 'battle_start')
+def press_button_battle_start(hWnd, stride=True):
+    return press_button_aux(hWnd, 'battle_start', stride)
 
 
 def has_button_battle_start(hWnd):
@@ -103,21 +109,26 @@ def has_button_battle_start(hWnd):
 
 
 # 点击确认
-def press_button_reward_check(hWnd):
-    return press_button_aux(hWnd, 'reward_check')
+def press_button_reward_check(hWnd, stride=True):
+    return press_button_aux(hWnd, 'reward_check', stride)
 
 
 def has_button_reward_check(hWnd):
     return has_button_aux(hWnd, 'reward_check')
 
 
-# 点击确认
-def press_button_use(hWnd):
-    return press_button_aux(hWnd, 'use')
+# 点击使用
+def press_button_use(hWnd, stride=False):
+    return press_button_aux(hWnd, 'use', stride)
 
 
 def has_button_use(hWnd):
     return has_button_aux(hWnd, 'use')
+
+
+# 判断是否在主界面
+def has_mainui_sign(hWnd):
+    return has_button_aux(hWnd, 'mainui_sign')
 
 
 if __name__ == "__main__":

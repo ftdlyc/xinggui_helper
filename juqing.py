@@ -10,11 +10,10 @@ import datetime
 
 
 def run(hWnd, key):
-    for i in range(1):
+    for i in range(3):
         win32_helper.wait(3)
         win32_helper.send_key_to_window(hWnd, key)
-        game.battle(hWnd, 30)
-        #game.press_button_ok(hWnd)
+        game.battle(hWnd, 40)
 
 
 if len(sys.argv) > 1:
@@ -43,6 +42,7 @@ run(hWnd, win32_helper.VK_C)
 print("\nbattle 4")
 run(hWnd, win32_helper.VK_D)
 
+win32_helper.wait(5)
 left, top, right, bottom = win32gui.GetWindowRect(hWnd)
 win32_helper.send_mouse_wheel_to_window(
     hWnd, (left + right) / 2, (top + bottom) / 2, -120, 20)

@@ -48,6 +48,11 @@ def battle(hWnd, battle_cost_times, op_delay=3, battle_end_delay=6):
     while not game.press_button_reward_check(hWnd):
         win32_helper.wait(op_delay)
 
+        # 若没有奖励, 跳出
+        if game.has_mainui_sign(hWnd):
+            print('No reward')
+            break
+
     return True
 
 
