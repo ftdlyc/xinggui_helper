@@ -13,8 +13,8 @@ def run(hWnd, key):
     for i in range(1):
         win32_helper.wait(3)
         win32_helper.send_key_to_window(hWnd, key)
-        #game.battle(hWnd, 30)
-        game.press_button_ok(hWnd)
+        game.battle(hWnd, 30)
+        #game.press_button_ok(hWnd)
 
 
 if len(sys.argv) > 1:
