@@ -19,16 +19,19 @@ k_button_path = {
     'battle_start': './pic/button_battle_start.png',
     'reward_check': './pic/button_reward_check.png',
     'use': './pic/button_use.png',
+    'cross': './pic/button_cross.png',
     'mainui_sign': './pic/mainui_sign.png'
 }
 
 k_button_img = {}
+k_thr = 0.75
+k_op_delay = 2
 
 
 def has_button(hWnd, button_img, thr):
     img = win32_helper.screenshot(hWnd)
-    i, j, val = dip.template_match(img, button_img)
-    return val >= thr, i, j, val
+    ret = dip.template_match(img, button_img)
+    return ret[0][0] >= thr, ret[0][1], ret[0][2], ret[0][0]
 
 
 def press_button(hWnd, button_img, thr):
@@ -49,21 +52,21 @@ def press_button(hWnd, button_img, thr):
     return True, val
 
 
-def has_button_aux(hWnd, name, thr=0.75):
+def has_button_aux(hWnd, name, thr=k_thr):
     if name not in k_button_img:
         k_button_img[name] = cv2.imread(k_button_path[name])
     template = k_button_img[name]
     return has_button(hWnd, template, thr)[0]
 
 
-def press_button_aux(hWnd, name, stride, thr=0.75, op_delay=2):
+def press_button_aux(hWnd, name, bcheck, thr=k_thr, op_delay=k_op_delay):
     if name not in k_button_img:
         k_button_img[name] = cv2.imread(k_button_path[name])
     template = k_button_img[name]
     while 1:
         ret, val = press_button(hWnd, template, thr)
         win32_helper.wait(op_delay)
-        if not stride or not has_button(hWnd, template, thr)[0]:
+        if not bcheck or not has_button(hWnd, template, thr)[0]:
             break
     if ret:
         print('press button {0}, val = {1}'.format(name, val))
@@ -73,8 +76,8 @@ def press_button_aux(hWnd, name, stride, thr=0.75, op_delay=2):
 
 
 # 点击略过
-def press_button_skip(hWnd, stride=True):
-    return press_button_aux(hWnd, 'skip', stride)
+def press_button_skip(hWnd, bcheck=True):
+    return press_button_aux(hWnd, 'skip', bcheck)
 
 
 def has_button_skip(hWnd):
@@ -82,8 +85,8 @@ def has_button_skip(hWnd):
 
 
 # 点击确定
-def press_button_ok(hWnd, stride=True):
-    return press_button_aux(hWnd, 'ok', stride)
+def press_button_ok(hWnd, bcheck=True):
+    return press_button_aux(hWnd, 'ok', bcheck)
 
 
 def has_button_ok(hWnd):
@@ -91,8 +94,8 @@ def has_button_ok(hWnd):
 
 
 # 点击取消
-def press_button_cancel(hWnd, stride=True):
-    return press_button_aux(hWnd, 'cancel', stride)
+def press_button_cancel(hWnd, bcheck=True):
+    return press_button_aux(hWnd, 'cancel', bcheck)
 
 
 def has_button_cancel(hWnd):
@@ -100,8 +103,8 @@ def has_button_cancel(hWnd):
 
 
 # 点击挑战
-def press_button_battle_start(hWnd, stride=True):
-    return press_button_aux(hWnd, 'battle_start', stride)
+def press_button_battle_start(hWnd, bcheck=True):
+    return press_button_aux(hWnd, 'battle_start', bcheck)
 
 
 def has_button_battle_start(hWnd):
@@ -109,8 +112,8 @@ def has_button_battle_start(hWnd):
 
 
 # 点击确认
-def press_button_reward_check(hWnd, stride=True):
-    return press_button_aux(hWnd, 'reward_check', stride)
+def press_button_reward_check(hWnd, bcheck=True):
+    return press_button_aux(hWnd, 'reward_check', bcheck)
 
 
 def has_button_reward_check(hWnd):
@@ -118,12 +121,21 @@ def has_button_reward_check(hWnd):
 
 
 # 点击使用
-def press_button_use(hWnd, stride=False):
-    return press_button_aux(hWnd, 'use', stride)
+def press_button_use(hWnd, bcheck=False):
+    return press_button_aux(hWnd, 'use', bcheck)
 
 
 def has_button_use(hWnd):
     return has_button_aux(hWnd, 'use')
+
+
+# 点击交叉(x)
+def press_button_cross(hWnd, bcheck=False):
+    return press_button_aux(hWnd, 'cross', bcheck)
+
+
+def has_button_cross(hWnd):
+    return has_button_aux(hWnd, 'cross')
 
 
 # 判断是否在主界面
@@ -131,8 +143,54 @@ def has_mainui_sign(hWnd):
     return has_button_aux(hWnd, 'mainui_sign')
 
 
+# 判断是否出现选择框
+def has_select_box(hWnd):
+    return has_button_ok(hWnd) and has_button_cancel(hWnd)
+
+
+# 使用AP药
+def press_button_use_ap(hWnd, thr=k_thr, op_delay=k_op_delay):
+    name = 'use'
+    if name not in k_button_img:
+        k_button_img[name] = cv2.imread(k_button_path[name])
+    button_img = k_button_img[name]
+
+    old_hWnd = win32gui.GetForegroundWindow()
+
+    img = win32_helper.screenshot(hWnd)
+    proposal = dip.template_match(img, button_img, n=4)
+
+    button_use = []
+    for i in range(4):
+        if proposal[i][0] >= k_thr:
+            button_use.append(proposal[i])
+
+    def get_third(elem):
+        return elem[2]
+    button_use.sort(key=get_third, reverse=True)
+    
+    n = len(button_use)
+    if n == 0:
+        return False, proposal[0][0]
+
+    i = button_use[0][1]
+    j = button_use[0][2]
+    win32_helper.send_lbutton_clk_to_window(
+        hWnd, i + button_img.shape[1] / 2, j + button_img.shape[0] / 2)
+
+    try:
+        win32gui.SetForegroundWindow(old_hWnd)
+    except:
+        pass
+
+    win32_helper.wait(op_delay)
+
+    return True, button_use[0][0]
+
+
 if __name__ == "__main__":
     handle = win32_helper.find_window_handle('MuMu', None, None)
     handle = win32_helper.find_first_child_window(handle)
-    ret = has_button_aux(handle, 'cancel')
+    #ret = has_button_aux(handle, 'cross')
+    ret = press_button_use_ap(handle)
     print(ret)
