@@ -55,7 +55,7 @@ def battle(hWnd, battle_cost_times, op_delay=3, battle_end_delay=6):
         win32_helper.wait(battle_end_delay)
 
     # 吃4次AP药
-    n = check_ap(hWnd, op_delay=op_delay, n=1)
+    n = check_ap(hWnd, op_delay=op_delay, n=4)
     if n == 0:
         print('ap not enough!')
         return False
