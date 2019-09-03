@@ -17,6 +17,7 @@ k_button_path = {
     'ok': './pic/button_ok.png',
     'cancel': './pic/button_cancel.png',
     'battle_start': './pic/button_battle_start.png',
+    'battle_start2': './pic/button_battle_start2.png',
     'reward_check': './pic/button_reward_check.png',
     'use': './pic/button_use.png',
     'cross': './pic/button_cross.png',
@@ -104,7 +105,7 @@ def has_button_cancel(hWnd):
 
 # 点击挑战
 def press_button_battle_start(hWnd, bcheck=True):
-    return press_button_aux(hWnd, 'battle_start', bcheck)
+    return press_button_aux(hWnd, 'battle_start', bcheck) or press_button_aux(hWnd, 'battle_start2', bcheck)
 
 
 def has_button_battle_start(hWnd):
